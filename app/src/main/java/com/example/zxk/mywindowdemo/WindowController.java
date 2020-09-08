@@ -12,7 +12,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
@@ -34,7 +33,7 @@ public class WindowController{
     //最小滑动距离
     private int mTouchSlop;
     //上下两个布局
-    private FrameLayout layoutFloat;
+    private RelativeLayout layoutFloat;
     private ImageView ima_float;
 
     private int lastX, lastY;
@@ -125,7 +124,7 @@ public class WindowController{
 
     RelativeLayout rela_content;
     private void initTop(){
-        layoutFloat = (FrameLayout) LayoutInflater.from(context).inflate(R.layout.window_top, null);
+        layoutFloat = (RelativeLayout) LayoutInflater.from(context).inflate(R.layout.window_top, null);
         ima_float = layoutFloat.findViewById(R.id.top);
         rela_content = layoutFloat.findViewById(R.id.rela_content);
 
@@ -145,6 +144,7 @@ public class WindowController{
                         downX = (int) event.getX();
                         downY = (int) event.getY();
                         break;
+                        
                     case MotionEvent.ACTION_MOVE:
                         Log.e("ZXK", "MotionEvent.ACTION_MOVE");
                         if(Math.abs(event.getRawX() - lastX) > 0 || Math.abs(event.getRawY() - lastY) > 0){
@@ -168,10 +168,9 @@ public class WindowController{
 
                             lastX = (int) event.getRawX();
                             lastY = (int) event.getRawY();
-                            Log.d("WindowController", "lastX:" + lastX);
-                            Log.d("WindowController", "lastY:" + lastY);
-                            wParamsFloat.x = lastX;
-                            wParamsFloat.y = lastY;
+
+                            ima_float.setX(topX);
+                            ima_float.setY(topY);
                             handler.sendEmptyMessage(REFRESH);
                         }
                         break;
@@ -198,11 +197,11 @@ public class WindowController{
             }
         });
         wParamsFloat = new WindowManager.LayoutParams();
-        wParamsFloat.width = WindowManager.LayoutParams.WRAP_CONTENT;
-        wParamsFloat.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        //初始化坐标
+        wParamsFloat.width = WindowManager.LayoutParams.MATCH_PARENT;
+        wParamsFloat.height = WindowManager.LayoutParams.MATCH_PARENT;
+        /*//初始化坐标
         wParamsFloat.x = leftWidthXLocation;
-        wParamsFloat.y = LeftRightHeightLocation;
+        wParamsFloat.y = LeftRightHeightLocation;*/
         //弹窗类型
         //        wParamsTop.type = WindowManager.LayoutParams.TYPE_PHONE;//闪退bughttps://www.jianshu.com/p/79129a0f75b4
         //        wParamsTop.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
