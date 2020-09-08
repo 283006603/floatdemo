@@ -129,12 +129,7 @@ public class WindowController{
         ima_float = layoutFloat.findViewById(R.id.top);
         rela_content = layoutFloat.findViewById(R.id.rela_content);
 
-        layoutFloat.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                Log.d("WindowController", "aaa");
-            }
-        });
+
 
         //监听触摸事件,实现拖动和点击。
         ima_float.setOnTouchListener(new View.OnTouchListener(){
@@ -203,8 +198,8 @@ public class WindowController{
             }
         });
         wParamsFloat = new WindowManager.LayoutParams();
-        wParamsFloat.width = WindowManager.LayoutParams.MATCH_PARENT;
-        wParamsFloat.height = WindowManager.LayoutParams.MATCH_PARENT;
+        wParamsFloat.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        wParamsFloat.height = WindowManager.LayoutParams.WRAP_CONTENT;
         //初始化坐标
         wParamsFloat.x = leftWidthXLocation;
         wParamsFloat.y = LeftRightHeightLocation;
