@@ -144,7 +144,7 @@ public class WindowController{
                         downX = (int) event.getX();
                         downY = (int) event.getY();
                         break;
-                        
+
                     case MotionEvent.ACTION_MOVE:
                         Log.e("ZXK", "MotionEvent.ACTION_MOVE");
                         if(Math.abs(event.getRawX() - lastX) > 0 || Math.abs(event.getRawY() - lastY) > 0){
@@ -180,15 +180,15 @@ public class WindowController{
                             handler.sendEmptyMessage(CLICK);
                         }
                         //看是左边还是右边滑动
-                        if(wParamsFloat.x >=screenWidth / 2){
+                        if(ima_float.getX() >=screenWidth / 2){
                             Log.d("WindowController", "右边");
-                            wParamsFloat.x=rightWidthXLocation;
+                            ima_float.setX(rightWidthXLocation);
 
-                        }else if(wParamsFloat.x < screenWidth / 2){
+                        }else if(ima_float.getX() < screenWidth / 2){
                             Log.d("WindowController", "左边");
-                            wParamsFloat.x=leftWidthXLocation;
+                            ima_float.setX(leftWidthXLocation);
                         }
-                        wParamsFloat.y=LeftRightHeightLocation;
+                        ima_float.setY(LeftRightHeightLocation);
                         mWindowManager.updateViewLayout(layoutFloat, wParamsFloat);
                         break;
 
