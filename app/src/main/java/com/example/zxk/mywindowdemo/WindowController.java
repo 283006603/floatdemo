@@ -194,8 +194,9 @@ public class WindowController{
                             }
                             lastX = (int) event.getRawX();
                             lastY = (int) event.getRawY();
-                            ima_float.setX(topX);
-                            ima_float.setY(topY);
+                           /* ima_float.setX(topX);
+                            ima_float.setY(topY);*/
+                            realViewPosition(topX,screenHeight-topY);
                             handler.sendEmptyMessage(REFRESH);
                         }
                         break;
@@ -204,7 +205,7 @@ public class WindowController{
                         if(currentTime - downTime < 200 && Math.abs(event.getRawX() - lastX) < mTouchSlop && Math.abs(event.getRawY() - lastY) < mTouchSlop){
                             handler.sendEmptyMessage(CLICK);
                         }
-                        //看是左边还是右边滑动
+                       /* //看是左边还是右边滑动
                         if(ima_float.getX() >= screenWidth / 2){
                             location = false;
                             ima_float.setX(rightWidthXLocation);
@@ -216,7 +217,7 @@ public class WindowController{
                         mWindowManager.updateViewLayout(layoutFloat, wParamsFloat);
 
 
-                        realViewPosition(location);
+                        realViewPosition(location);*/
                         break;
                 }
                 return true;
@@ -224,18 +225,14 @@ public class WindowController{
         });
     }
 
-    private void realViewPosition(boolean location){
+    private void realViewPosition(int x,int y){
         RelativeLayout.LayoutParams layoutParams=new RelativeLayout.LayoutParams(topWidth,topWidth);
         layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        if(location){
-            layoutParams.leftMargin=leftWidthXLocation;
-        }else{
-            layoutParams.rightMargin=rightWidthXLocation;
-            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        }
-        layoutParams.bottomMargin=leftWidthXLocation;
+
+        layoutParams.leftMargin=x;
+        layoutParams.bottomMargin=y;
+
         ima_float.setLayoutParams(layoutParams);
-        mWindowManager.updateViewLayout(layoutFloat, wParamsFloat);
     }
 
     /**
