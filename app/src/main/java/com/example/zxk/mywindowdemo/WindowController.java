@@ -119,6 +119,8 @@ public class WindowController{
         rightWidthXLocation = screenWidth - topWidth - WindowHelper.dip2px(context, 40);
         LeftRightHeightLocation = screenHeight - topHeight - WindowHelper.dip2px(context, 40);
         initTop();
+        //监听触摸事件,实现拖动和点击。
+        initListener();
         mWindowManager.addView(layoutFloat, wParamsFloat);
     }
 
@@ -132,10 +134,34 @@ public class WindowController{
         ima_float = layoutFloat.findViewById(R.id.top);
         //内容布局
         contentFloat = (RelativeLayout) LayoutInflater.from(context).inflate(R.layout.window_content, null);
-        //
         //悬浮窗布局动态添加内容布局,并初始化内容布局的位置
-        lp1 = new RelativeLayout.LayoutParams(200, 300);
-        //监听触摸事件,实现拖动和点击。
+        lp1 = new RelativeLayout.LayoutParams(WindowHelper.dip2px(context, 400), WindowHelper.dip2px(context, 500));
+        wParamsFloat = new WindowManager.LayoutParams();
+        wParamsFloat.width = WindowManager.LayoutParams.MATCH_PARENT;
+        wParamsFloat.height = WindowManager.LayoutParams.MATCH_PARENT;
+        //弹窗类型
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            wParamsFloat.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+        }else{
+            wParamsFloat.type = WindowManager.LayoutParams.TYPE_PHONE;
+        }
+        //以左上角为基准
+        wParamsFloat.gravity = Gravity.START | Gravity.TOP;
+        wParamsFloat.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        //如果不加,背景会是一片黑色。
+        wParamsFloat.format = PixelFormat.RGBA_8888;
+    }
+
+    private void initListener(){
+        layoutFloat.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+               if(isShow){
+                   hideBottom();
+               }
+            }
+        });
+
         ima_float.setOnTouchListener(new View.OnTouchListener(){
             @Override
             public boolean onTouch(View v, MotionEvent event){
@@ -188,27 +214,28 @@ public class WindowController{
                         }
                         ima_float.setY(LeftRightHeightLocation);
                         mWindowManager.updateViewLayout(layoutFloat, wParamsFloat);
+
+
+                        realViewPosition(location);
                         break;
                 }
                 return true;
             }
         });
-        wParamsFloat = new WindowManager.LayoutParams();
-        wParamsFloat.width = WindowManager.LayoutParams.MATCH_PARENT;
-        wParamsFloat.height = WindowManager.LayoutParams.MATCH_PARENT;
-        //弹窗类型
-        //        wParamsTop.type = WindowManager.LayoutParams.TYPE_PHONE;//闪退bughttps://www.jianshu.com/p/79129a0f75b4
-        //        wParamsTop.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            wParamsFloat.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+    }
+
+    private void realViewPosition(boolean location){
+        RelativeLayout.LayoutParams layoutParams=new RelativeLayout.LayoutParams(topWidth,topWidth);
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        if(location){
+            layoutParams.leftMargin=leftWidthXLocation;
         }else{
-            wParamsFloat.type = WindowManager.LayoutParams.TYPE_PHONE;
+            layoutParams.rightMargin=rightWidthXLocation;
+            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         }
-        //以左上角为基准
-        wParamsFloat.gravity = Gravity.START | Gravity.TOP;
-        wParamsFloat.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-        //如果不加,背景会是一片黑色。
-        wParamsFloat.format = PixelFormat.RGBA_8888;
+        layoutParams.bottomMargin=leftWidthXLocation;
+        ima_float.setLayoutParams(layoutParams);
+        mWindowManager.updateViewLayout(layoutFloat, wParamsFloat);
     }
 
     /**
@@ -228,10 +255,13 @@ public class WindowController{
      */
     private void showBottom(){
         if(location){
+            lp1.removeRule(RelativeLayout.ALIGN_RIGHT);
             lp1.addRule(RelativeLayout.ALIGN_LEFT, R.id.top);//与某元素左边对齐
         }else{
+            lp1.removeRule(RelativeLayout.ALIGN_RIGHT);
             lp1.addRule(RelativeLayout.ALIGN_RIGHT, R.id.top);//与某元素右边对齐
         }
+        lp1.bottomMargin=WindowHelper.dip2px(context, 40);
         lp1.addRule(RelativeLayout.ABOVE, R.id.top);//在某元素上方
         layoutFloat.addView(contentFloat, lp1);
         isShow = true;
