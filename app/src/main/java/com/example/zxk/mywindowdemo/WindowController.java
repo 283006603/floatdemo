@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -34,7 +33,7 @@ public class WindowController{
     //最小滑动距离
     private int mTouchSlop;
     //上下两个布局
-    private RelativeLayout layoutFloat,contentFloat;
+    private RelativeLayout layoutFloat, contentFloat;
     private ImageView ima_float;
 
     private int lastX, lastY;
@@ -49,12 +48,17 @@ public class WindowController{
     private int topWidth, topHeight;
 
     //拖动后左右边要恢复的原始位置
-    private int leftWidthXLocation,rightWidthXLocation,LeftRightHeightLocation;
+    private int leftWidthXLocation, rightWidthXLocation, LeftRightHeightLocation;
 
     //状态栏的高度
     private int statusBarHeight;
     //展开 or 收起
-    private boolean isShow=false;
+    private boolean isShow = false;
+
+    RelativeLayout.LayoutParams lp1;
+
+    //悬浮球位置
+    private boolean location = true;
 
     private Handler handler = new Handler(){
         @Override
@@ -79,7 +83,6 @@ public class WindowController{
     };
 
     private WindowController(Context context){
-
         this.context = context;
         mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         //获取status_bar_height资源的ID
@@ -91,6 +94,7 @@ public class WindowController{
         screenWidth = mWindowManager.getDefaultDisplay().getWidth();
         //需要减去状态栏高度
         screenHeight = mWindowManager.getDefaultDisplay().getHeight() - statusBarHeight;
+        //悬浮窗自身控件的宽高，要与布局一样
         topWidth = WindowHelper.dip2px(context, 60);
         topHeight = WindowHelper.dip2px(context, 60);
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
@@ -111,10 +115,9 @@ public class WindowController{
      * 初始化
      */
     public void init(){
-
-        leftWidthXLocation = topWidth;
-        rightWidthXLocation=screenWidth-topWidth-WindowHelper.dip2px(context, 40);
-        LeftRightHeightLocation =screenHeight- topHeight-WindowHelper.dip2px(context, 40);
+        leftWidthXLocation = WindowHelper.dip2px(context, 40);//40为左右下屏幕间距宽度，和布局要对应上
+        rightWidthXLocation = screenWidth - topWidth - WindowHelper.dip2px(context, 40);
+        LeftRightHeightLocation = screenHeight - topHeight - WindowHelper.dip2px(context, 40);
         initTop();
         mWindowManager.addView(layoutFloat, wParamsFloat);
     }
@@ -128,18 +131,10 @@ public class WindowController{
         layoutFloat = (RelativeLayout) LayoutInflater.from(context).inflate(R.layout.window_float, null);
         ima_float = layoutFloat.findViewById(R.id.top);
         //内容布局
-        contentFloat=(RelativeLayout) LayoutInflater.from(context).inflate(R.layout.window_content, null);
-
-        //悬浮窗布局动态添加内容布局
-        //定义一个RelativeLayout组件
-        RelativeLayout.LayoutParams lp1 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp1.addRule(RelativeLayout.ABOVE,R.id.top);//在某元素上方
-        lp1.addRule(RelativeLayout.ALIGN_LEFT,R.id.top);//与某元素左边对齐
-        layoutFloat.addView(contentFloat,lp1);
-
-
-
-
+        contentFloat = (RelativeLayout) LayoutInflater.from(context).inflate(R.layout.window_content, null);
+        //
+        //悬浮窗布局动态添加内容布局,并初始化内容布局的位置
+        lp1 = new RelativeLayout.LayoutParams(200, 300);
         //监听触摸事件,实现拖动和点击。
         ima_float.setOnTouchListener(new View.OnTouchListener(){
             @Override
@@ -154,7 +149,6 @@ public class WindowController{
                         downX = (int) event.getX();
                         downY = (int) event.getY();
                         break;
-
                     case MotionEvent.ACTION_MOVE:
                         if(Math.abs(event.getRawX() - lastX) > 0 || Math.abs(event.getRawY() - lastY) > 0){
                             topX = (int) (event.getRawX() - downX);
@@ -172,10 +166,8 @@ public class WindowController{
                             }else if((topY + topHeight) > screenHeight){
                                 topY = screenHeight - topHeight;
                             }
-
                             lastX = (int) event.getRawX();
                             lastY = (int) event.getRawY();
-
                             ima_float.setX(topX);
                             ima_float.setY(topY);
                             handler.sendEmptyMessage(REFRESH);
@@ -187,18 +179,16 @@ public class WindowController{
                             handler.sendEmptyMessage(CLICK);
                         }
                         //看是左边还是右边滑动
-                        if(ima_float.getX() >=screenWidth / 2){
-                            Log.d("WindowController", "右边");
+                        if(ima_float.getX() >= screenWidth / 2){
+                            location = false;
                             ima_float.setX(rightWidthXLocation);
-
                         }else if(ima_float.getX() < screenWidth / 2){
-                            Log.d("WindowController", "左边");
+                            location = true;
                             ima_float.setX(leftWidthXLocation);
                         }
                         ima_float.setY(LeftRightHeightLocation);
                         mWindowManager.updateViewLayout(layoutFloat, wParamsFloat);
                         break;
-
                 }
                 return true;
             }
@@ -206,7 +196,6 @@ public class WindowController{
         wParamsFloat = new WindowManager.LayoutParams();
         wParamsFloat.width = WindowManager.LayoutParams.MATCH_PARENT;
         wParamsFloat.height = WindowManager.LayoutParams.MATCH_PARENT;
-
         //弹窗类型
         //        wParamsTop.type = WindowManager.LayoutParams.TYPE_PHONE;//闪退bughttps://www.jianshu.com/p/79129a0f75b4
         //        wParamsTop.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
@@ -226,13 +215,11 @@ public class WindowController{
      * 收起
      */
     private void hideBottom(){
-
-            try{
-//                rela_content.setVisibility(View.GONE);
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-
+        try{
+            layoutFloat.removeView(contentFloat);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
         isShow = false;
     }
 
@@ -240,7 +227,13 @@ public class WindowController{
      * 展开
      */
     private void showBottom(){
-//        rela_content.setVisibility(View.VISIBLE);
+        if(location){
+            lp1.addRule(RelativeLayout.ALIGN_LEFT, R.id.top);//与某元素左边对齐
+        }else{
+            lp1.addRule(RelativeLayout.ALIGN_RIGHT, R.id.top);//与某元素右边对齐
+        }
+        lp1.addRule(RelativeLayout.ABOVE, R.id.top);//在某元素上方
+        layoutFloat.addView(contentFloat, lp1);
         isShow = true;
     }
 
