@@ -2,7 +2,6 @@ package com.example.zxk.mywindowdemo;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -26,9 +25,9 @@ public class ViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view;
-        view = LayoutInflater.from(context).inflate(R.layout.layout_bottom_item_item,parent,false);
-        ItemViewHolder holder = new ItemViewHolder(view);
-        return holder;
+       /* view = LayoutInflater.from(context).inflate(R.layout.layout_bottom_item_item,parent,false);
+        ItemViewHolder holder = new ItemViewHolder(view);*/
+        return /*holder*/null;
     }
 
     @Override
@@ -48,7 +47,7 @@ public class ViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         public ItemViewHolder(View itemView) {
             super(itemView);
-            name = (TextView)itemView.findViewById(R.id.name);
+            /*name = (TextView)itemView.findViewById(R.id.name);*/
         }
     }
 }
