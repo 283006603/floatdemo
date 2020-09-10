@@ -176,6 +176,11 @@ public class WindowController{
                         downY = (int) event.getY();
                         break;
                     case MotionEvent.ACTION_MOVE:
+                        //悬浮窗内容展示的时候不能拖动
+                        if(isShow){
+                            return true;
+                        }
+
                         if(Math.abs(event.getRawX() - lastX) > 0 || Math.abs(event.getRawY() - lastY) > 0){
                             topX = (int) (event.getRawX() - downX);
                             //需要减去状态栏高度
