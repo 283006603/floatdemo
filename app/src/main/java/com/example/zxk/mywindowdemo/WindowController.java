@@ -116,8 +116,8 @@ public class WindowController{
      */
     public void init(){
         leftWidthXLocation = WindowHelper.dip2px(context, 40);//40为左右下屏幕间距宽度，和布局要对应上
-        rightWidthXLocation = screenWidth - topWidth - WindowHelper.dip2px(context, 40);
-        LeftRightHeightLocation = screenHeight - topHeight - WindowHelper.dip2px(context, 40);
+        rightWidthXLocation = WindowHelper.dip2px(context, 40);
+        LeftRightHeightLocation = WindowHelper.dip2px(context, 40);
         initTop();
         //监听触摸事件,实现拖动和点击。
         initListener();
@@ -194,9 +194,8 @@ public class WindowController{
                             }
                             lastX = (int) event.getRawX();
                             lastY = (int) event.getRawY();
-                           /* ima_float.setX(topX);
-                            ima_float.setY(topY);*/
-                            realViewPosition(topX,screenHeight-topY);
+
+                            movePosition(topX,screenHeight-topY-topHeight);
                             handler.sendEmptyMessage(REFRESH);
                         }
                         break;
@@ -205,19 +204,21 @@ public class WindowController{
                         if(currentTime - downTime < 200 && Math.abs(event.getRawX() - lastX) < mTouchSlop && Math.abs(event.getRawY() - lastY) < mTouchSlop){
                             handler.sendEmptyMessage(CLICK);
                         }
-                       /* //看是左边还是右边滑动
+
+                        //看是左边还是右边滑动
                         if(ima_float.getX() >= screenWidth / 2){
                             location = false;
-                            ima_float.setX(rightWidthXLocation);
+
                         }else if(ima_float.getX() < screenWidth / 2){
                             location = true;
-                            ima_float.setX(leftWidthXLocation);
+
                         }
-                        ima_float.setY(LeftRightHeightLocation);
+
+                        revertPosition(location);
+
                         mWindowManager.updateViewLayout(layoutFloat, wParamsFloat);
 
 
-                        realViewPosition(location);*/
                         break;
                 }
                 return true;
@@ -225,7 +226,21 @@ public class WindowController{
         });
     }
 
-    private void realViewPosition(int x,int y){
+    private void revertPosition(boolean location){
+        RelativeLayout.LayoutParams layoutParams=new RelativeLayout.LayoutParams(topWidth,topWidth);
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        if(location){
+            layoutParams.leftMargin=leftWidthXLocation;
+        }else {
+            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            layoutParams.rightMargin=rightWidthXLocation;
+        }
+        layoutParams.bottomMargin=LeftRightHeightLocation;
+
+        ima_float.setLayoutParams(layoutParams);
+    }
+
+    private void movePosition(int x,int y){
         RelativeLayout.LayoutParams layoutParams=new RelativeLayout.LayoutParams(topWidth,topWidth);
         layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 
